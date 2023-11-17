@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Nota</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Editar Nota</h1>
+    <form method="POST">
+        <input type="text" name="nota" value="{{ nota }}">
+        <input type="submit" value="Guardar Cambios">
+    </form>
+    <a href="{{ url_for('index') }}" class="cancel-btn">Cancelar</a>
+</body>
+</html>

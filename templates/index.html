@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog de Notas</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Blog de Notas</h1>
+    <form method="POST">
+        <input type="text" name="nota" placeholder="Escribe una nota aquí...">
+        <input type="submit" value="Guardar Nota">
+    </form>
+    <ul>
+        {% for nota in notas %}
+            <li>
+                {{ nota }} 
+                <a href="{{ url_for('edit', index=loop.index0) }}">[Editar]</a>
+                <a href="{{ url_for('delete', index=loop.index0) }}">[Borrar]</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

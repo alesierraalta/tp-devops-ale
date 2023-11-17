@@ -1,0 +1,8 @@
+/.vscode/
+/tests/.__pycache__/
+/tests/.pytest_cache/
+/tests/.vscode/
+/.idea/
+/.pytest_cache/
+/.__pycache__/
+/.venv/
