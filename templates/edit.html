@@ -5,11 +5,18 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Editar Nota</h1>
-    <form method="POST">
-        <input type="text" name="nota" value="{{ nota }}">
-        <input type="submit" value="Guardar Cambios">
-    </form>
-    <a href="{{ url_for('index') }}" class="cancel-btn">Cancelar</a>
+    {% if current_user.is_authenticated %}
+        <h1>Editar Nota</h1>
+        <form method="POST">
+            <input type="text" name="nota" value="{{ nota.contenido }}">
+            <input type="submit" value="Guardar">
+        </form>
+        <a href="{{ url_for('index') }}">Volver al Inicio</a>
+        <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+    {% else %}
+        <h1>Por favor, inicia sesión o regístrate.</h1>
+        <p><a href="{{ url_for('login') }}">Iniciar Sesión</a></p>
+        <p><a href="{{ url_for('registro') }}">Registrarse</a></p>
+    {% endif %}
 </body>
 </html>

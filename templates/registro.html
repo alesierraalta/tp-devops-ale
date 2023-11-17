@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Registro de Usuario</h1>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Nombre de Usuario">
+        <input type="password" name="password" placeholder="Contraseña">
+        <input type="submit" value="Registrar">
+    </form>
+    <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></p>
+</body>
+</html>

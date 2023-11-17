@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Blog de Notas</title>
+    <title>Inicio</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Blog de Notas</h1>
-    <form method="POST">
-        <input type="text" name="nota" placeholder="Escribe una nota aquí...">
-        <input type="submit" value="Guardar Nota">
-    </form>
-    <ul>
-        {% for nota in notas %}
-            <li>
-                {{ nota }} 
-                <a href="{{ url_for('edit', index=loop.index0) }}">[Editar]</a>
-                <a href="{{ url_for('delete', index=loop.index0) }}">[Borrar]</a>
-            </li>
-        {% endfor %}
-    </ul>
+    {% if current_user.is_authenticated %}
+        <h1>Bienvenido, {{ current_user.username }}</h1>
+        <form method="POST" action="{{ url_for('add') }}">
+            <input type="text" name="nota" placeholder="Añade una nueva nota aquí...">
+            <input type="submit" value="Agregar">
+        </form>
+        <ul>
+            {% for nota in notas %}
+                <li>{{ nota.contenido }} - <a href="{{ url_for('edit', nota_id=nota.id) }}">Editar</a> - <a href="{{ url_for('delete', nota_id=nota.id) }}">Borrar</a></li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+    {% else %}
+        <h1>Por favor, inicia sesión o regístrate.</h1>
+        <p><a href="{{ url_for('login') }}">Iniciar Sesión</a></p>
+        <p><a href="{{ url_for('registro') }}">Registrarse</a></p>
+    {% endif %}
 </body>
 </html>

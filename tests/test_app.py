@@ -1,8 +1,9 @@
 import unittest
 import sys
 import os
+import json
 
-# Agrega el directorio donde se encuentra app.py al sys.path
+#directorio donde se encuentra app.py al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 from app import app
@@ -12,6 +13,14 @@ class FlaskBlogTestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
+        # Crear un archivo de notas vacío
+        with open('notas.json', 'w') as file:
+            json.dump([], file)
+
+    def tearDown(self):
+        # Eliminar o vaciar el archivo de notas después de cada prueba
+        if os.path.exists('notas.json'):
+            os.remove('notas.json')
 
     def test_index_page(self):
         response = self.app.get('/')
