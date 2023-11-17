@@ -1,8 +1,39 @@
-/.vscode/
-/tests/.__pycache__/
-/tests/.pytest_cache/
-/tests/.vscode/
-/.idea/
-/.pytest_cache/
-/.__pycache__/
-/.venv/
+# Bytecode compilado de Python
+__pycache__/
+*.py[cod]
+
+# Archivos de paquetes de Python
+*.egg
+*.egg-info
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+include/
+
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de dependencias
+pip-log.txt
+pip-delete-this-directory.txt
