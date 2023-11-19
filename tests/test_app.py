@@ -1,63 +1,78 @@
 import unittest
 import sys
 import os
-import json
+from flask_sqlalchemy import SQLAlchemy
 
-#directorio donde se encuentra app.py al sys.path
+# Agregar el directorio de la aplicación al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
-from app import app
+from app import app, db, Usuario, Nota
 
 class FlaskBlogTestCase(unittest.TestCase):
 
     def setUp(self):
         app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['WTF_CSRF_ENABLED'] = False
         self.app = app.test_client()
-        # Crear un archivo de notas vacío
-        with open('notas.json', 'w') as file:
-            json.dump([], file)
+
+        with app.app_context():
+            db.create_all()
+            # Crear y añadir un usuario de prueba a la base de datos
+            usuario_prueba = Usuario(username='testuser')
+            usuario_prueba.set_password('testpassword')
+            db.session.add(usuario_prueba)
+            db.session.commit()
 
     def tearDown(self):
-        # Eliminar o vaciar el archivo de notas después de cada prueba
-        if os.path.exists('notas.json'):
-            os.remove('notas.json')
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
 
-    def test_index_page(self):
-        response = self.app.get('/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Blog de Notas', response.data)
+    def login(self, username='testuser', password='testpassword'):
+        # Método auxiliar para iniciar sesión
+        return self.app.post('/login', data={
+            'username': username,
+            'password': password
+        }, follow_redirects=True)
 
-    def test_add_note(self):
-        response = self.app.post('/', data={'nota': 'Test nota'}, follow_redirects=True)
-        self.assertIn(b'Test nota', response.data)
+    def logout(self):
+        # Método auxiliar para cerrar sesión
+        return self.app.get('/logout', follow_redirects=True)
+
+    def test_login_logout(self):
+        rv = self.login()
+        response_text = rv.data.decode('utf-8')
+        print("Respuesta después del inicio de sesión:", response_text)  # Agregar impresión para depuración
+        assert 'Bienvenido, testuser' in response_text or 'Cerrar Sesión' in response_text
+        rv = self.logout()
+        response_text = rv.data.decode('utf-8')
+        print("Respuesta después del cierre de sesión:", response_text)  # Agregar impresión para depuración
+        assert 'Bienvenido, testuser' not in response_text and 'Cerrar Sesión' not in response_text
 
     def test_edit_note(self):
-        # Añadir una nota primero
-        self.app.post('/', data={'nota': 'Nota para editar'}, follow_redirects=True)
-        # Obtener el número de notas actuales para editar la última añadida
-        response = self.app.get('/')
-        numero_notas = response.data.count(b'Nota para editar')
-        # Editar la última nota añadida
-        response = self.app.post(f'/edit/{numero_notas - 1}', data={'nota': 'Nota editada'}, follow_redirects=True)
-        self.assertIn(b'Nota editada', response.data)
+        # Prueba para verificar la edición de una nota
+        with app.app_context():
+            self.login()
+            self.app.post('/add', data={'nota': 'Nota para editar'}, follow_redirects=True)
+            nota = Nota.query.filter_by(contenido='Nota para editar').first()
+            rv = self.app.post(f'/edit/{nota.id}', data={'nota': 'Nota editada'}, follow_redirects=True)
+            response_text = rv.data.decode('utf-8')
+            print("Respuesta después de editar nota:", response_text)  # Agregar impresión para depuración
+            assert b'Nota editada' in rv.data
 
     def test_delete_note(self):
-        # Añadir una nota primero
-        self.app.post('/', data={'nota': 'Nota para borrar'}, follow_redirects=True)
+        # Prueba para verificar la eliminación de una nota
+        with app.app_context():
+            self.login()
+            self.app.post('/add', data={'nota': 'Nota para borrar'}, follow_redirects=True)
+            nota = Nota.query.filter_by(contenido='Nota para borrar').first()
+            rv = self.app.get(f'/delete/{nota.id}', follow_redirects=True)
+            response_text = rv.data.decode('utf-8')
+            print("Respuesta después de borrar nota:", response_text)  # Agregar impresión para depuración
+            assert b'Nota para borrar' not in rv.data
 
-        # Obtener el número de notas antes de borrar
-        response = self.app.get('/')
-        numero_notas_antes = response.data.count(b'<li>')
-
-        # Borrar la primera nota (en este caso, la única)
-        self.app.get('/delete/0', follow_redirects=True)
-
-        # Obtener el número de notas después de borrar
-        response = self.app.get('/')
-        numero_notas_despues = response.data.count(b'<li>')
-
-        # Verificar que el número de notas haya disminuido
-        self.assertEqual(numero_notas_antes - 1, numero_notas_despues)
+    # Puedes añadir más pruebas según las necesidades de tu aplicación
 
 if __name__ == '__main__':
     unittest.main()

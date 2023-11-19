@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import sessionmaker
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notas.db'
@@ -28,29 +30,30 @@ class Nota(db.Model):
     contenido = db.Column(db.String(1000))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
+    # Crear la base de datos
+with app.app_context():
+    db.create_all()
+
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(int(user_id))
+    Session = sessionmaker(bind=db.engine)
+    session = Session()
+    return session.get(Usuario, int(user_id))
+
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         usuario_existente = Usuario.query.filter_by(username=username).first()
-
         if usuario_existente:
             return redirect(url_for('registro'))
-
         nuevo_usuario = Usuario(username=username)
         nuevo_usuario.set_password(password)
-
         db.session.add(nuevo_usuario)
         db.session.commit()
-
         return redirect(url_for('login'))
-
     return render_template('registro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,13 +61,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         user = Usuario.query.filter_by(username=username).first()
-
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('index'))
-
     return render_template('login.html')
 
 @app.route('/')
