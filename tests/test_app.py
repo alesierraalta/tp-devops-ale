@@ -72,7 +72,7 @@ class FlaskBlogTestCase(unittest.TestCase):
             print("Respuesta después de borrar nota:", response_text)  # Agregar impresión para depuración
             assert b'Nota para borrar' not in rv.data
 
-    # Puedes añadir más pruebas según las necesidades de tu aplicación
+ 
 
 if __name__ == '__main__':
     unittest.main()
