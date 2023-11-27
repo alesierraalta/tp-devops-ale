@@ -1,12 +1,11 @@
 import unittest
 import sys
 import os
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy
+from app import app, db, Usuario, Nota
 
 # Agregar el directorio de la aplicación al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-
-from app import app, db, Usuario, Nota
 
 class FlaskBlogTestCase(unittest.TestCase):
 
@@ -71,8 +70,6 @@ class FlaskBlogTestCase(unittest.TestCase):
             response_text = rv.data.decode('utf-8')
             print("Respuesta después de borrar nota:", response_text)  # Agregar impresión para depuración
             assert b'Nota para borrar' not in rv.data
-
- 
 
 if __name__ == '__main__':
     unittest.main()

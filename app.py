@@ -4,7 +4,6 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import sessionmaker
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notas.db'
 app.config['SECRET_KEY'] = 'tu_llave_secreta_aqui'
@@ -39,7 +38,6 @@ def load_user(user_id):
     Session = sessionmaker(bind=db.engine)
     session = Session()
     return session.get(Usuario, int(user_id))
-
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -76,7 +74,8 @@ def index():
 @app.route('/add', methods=['POST'])
 @login_required
 def add():
-    nueva_nota = Nota(contenido=request.form['nota'], usuario_id=current_user.id)
+    nueva_nota = Nota(contenido=request.form['nota'],
+        usuario_id=current_user.id)
     db.session.add(nueva_nota)
     db.session.commit()
     return redirect(url_for('index'))
