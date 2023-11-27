@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user
-from flask_login import  login_required, logout_user, current_user
+from flask_login import (
+    LoginManager, UserMixin, login_user, login_required, 
+    logout_user, current_user
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import sessionmaker
 
@@ -50,12 +52,12 @@ def registro():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        usuario_existente = Usuario.query.filter_by(username=username).first()
-        if usuario_existente:
+        existente = Usuario.query.filter_by(username=username).first()
+        if existente:
             return redirect(url_for('registro'))
-        nuevo_usuario = Usuario(username=username)
-        nuevo_usuario.set_password(password)
-        db.session.add(nuevo_usuario)
+        nuevo = Usuario(username=username)
+        nuevo.set_password(password)
+        db.session.add(nuevo)
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('registro.html')
@@ -76,16 +78,16 @@ def login():
 @app.route('/')
 @login_required
 def index():
-    notas_usuario = Nota.query.filter_by(usuario_id=current_user.id).all()
-    return render_template('index.html', notas=notas_usuario)
+    notas = Nota.query.filter_by(usuario_id=current_user.id).all()
+    return render_template('index.html', notas=notas)
 
 
 @app.route('/add', methods=['POST'])
 @login_required
 def add():
-    nueva_nota = Nota(contenido=request.form['nota'],
-                      usuario_id=current_user.id)
-    db.session.add(nueva_nota)
+    nueva = Nota(contenido=request.form['nota'],
+                 usuario_id=current_user.id)
+    db.session.add(nueva)
     db.session.commit()
     return redirect(url_for('index'))
 
