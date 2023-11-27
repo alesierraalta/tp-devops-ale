@@ -85,5 +85,6 @@ class FlaskBlogTestCase(unittest.TestCase):
             print("Response after deleting note:", response_text)
             assert b'Note to delete' not in rv.data
 
+
 if __name__ == '__main__':
     unittest.main()
