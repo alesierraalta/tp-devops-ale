@@ -1,11 +1,12 @@
 import unittest
 import sys
 import os
-#from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from app import app, db, Usuario, Nota
 
-# Agregar el directorio de la aplicación al sys.path
+# Add the application directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+
 
 class FlaskBlogTestCase(unittest.TestCase):
 
@@ -17,7 +18,7 @@ class FlaskBlogTestCase(unittest.TestCase):
 
         with app.app_context():
             db.create_all()
-            # Crear y añadir un usuario de prueba a la base de datos
+            # Create and add a test user to the database
             usuario_prueba = Usuario(username='testuser')
             usuario_prueba.set_password('testpassword')
             db.session.add(usuario_prueba)
@@ -29,47 +30,47 @@ class FlaskBlogTestCase(unittest.TestCase):
             db.drop_all()
 
     def login(self, username='testuser', password='testpassword'):
-        # Método auxiliar para iniciar sesión
+        # Helper method for logging in
         return self.app.post('/login', data={
             'username': username,
             'password': password
         }, follow_redirects=True)
 
     def logout(self):
-        # Método auxiliar para cerrar sesión
+        # Helper method for logging out
         return self.app.get('/logout', follow_redirects=True)
 
     def test_login_logout(self):
         rv = self.login()
         response_text = rv.data.decode('utf-8')
-        print("Respuesta después del inicio de sesión:", response_text)  # Agregar impresión para depuración
-        assert 'Bienvenido, testuser' in response_text or 'Cerrar Sesión' in response_text
+        print("Response after logging in:", response_text)  # Add print for debugging
+        assert 'Welcome, testuser' in response_text or 'Logout' in response_text
         rv = self.logout()
         response_text = rv.data.decode('utf-8')
-        print("Respuesta después del cierre de sesión:", response_text)  # Agregar impresión para depuración
-        assert 'Bienvenido, testuser' not in response_text and 'Cerrar Sesión' not in response_text
+        print("Response after logging out:", response_text)  # Add print for debugging
+        assert 'Welcome, testuser' not in response_text and 'Logout' not in response_text
 
     def test_edit_note(self):
-        # Prueba para verificar la edición de una nota
+        # Test to verify note editing
         with app.app_context():
             self.login()
-            self.app.post('/add', data={'nota': 'Nota para editar'}, follow_redirects=True)
-            nota = Nota.query.filter_by(contenido='Nota para editar').first()
-            rv = self.app.post(f'/edit/{nota.id}', data={'nota': 'Nota editada'}, follow_redirects=True)
+            self.app.post('/add', data={'note': 'Note to edit'}, follow_redirects=True)
+            note = Nota.query.filter_by(content='Note to edit').first()
+            rv = self.app.post(f'/edit/{note.id}', data={'note': 'Edited note'}, follow_redirects=True)
             response_text = rv.data.decode('utf-8')
-            print("Respuesta después de editar nota:", response_text)  # Agregar impresión para depuración
-            assert b'Nota editada' in rv.data
+            print("Response after editing note:", response_text)  # Add print for debugging
+            assert b'Edited note' in rv.data
 
     def test_delete_note(self):
-        # Prueba para verificar la eliminación de una nota
+        # Test to verify note deletion
         with app.app_context():
             self.login()
-            self.app.post('/add', data={'nota': 'Nota para borrar'}, follow_redirects=True)
-            nota = Nota.query.filter_by(contenido='Nota para borrar').first()
-            rv = self.app.get(f'/delete/{nota.id}', follow_redirects=True)
+            self.app.post('/add', data={'note': 'Note to delete'}, follow_redirects=True)
+            note = Nota.query.filter_by(content='Note to delete').first()
+            rv = self.app.get(f'/delete/{note.id}', follow_redirects=True)
             response_text = rv.data.decode('utf-8')
-            print("Respuesta después de borrar nota:", response_text)  # Agregar impresión para depuración
-            assert b'Nota para borrar' not in rv.data
+            print("Response after deleting note:", response_text)  # Add print for debugging
+            assert b'Note to delete' not in rv.data
 
 if __name__ == '__main__':
     unittest.main()
