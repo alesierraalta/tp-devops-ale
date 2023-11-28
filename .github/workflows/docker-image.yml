@@ -46,4 +46,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/TP-DEVOPS-ALE:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
