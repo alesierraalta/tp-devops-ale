@@ -48,14 +48,14 @@ class FlaskBlogTestCase(unittest.TestCase):
     def test_edit_note(self):
         with app.app_context():
             self.login()
-            response = self.app.post('/add', data={'nota': 'Note to edit'}, 
+            response = self.app.post('/add', data={'nota': 'Note to edit'},
                                      follow_redirects=True)
-            print("Response after adding note for edit:", 
+            print("Response after adding note for edit:",
                   response.data.decode('utf-8'))
             note = Nota.query.filter_by(contenido='Note to edit').first()
             if note:
-                rv = self.app.post(f'/edit/{note.id}', 
-                                   data={'nota': 'Edited note'}, 
+                rv = self.app.post(f'/edit/{note.id}',
+                                   data={'nota': 'Edited note'},
                                    follow_redirects=True)
                 response_text = rv.data.decode('utf-8')
                 print("Response after editing note:", response_text)
@@ -66,19 +66,20 @@ class FlaskBlogTestCase(unittest.TestCase):
     def test_delete_note(self):
         with app.app_context():
             self.login()
-            response = self.app.post('/add', data={'nota': 'Note to delete'}, 
+            response = self.app.post('/add', data={'nota': 'Note to delete'},
                                      follow_redirects=True)
-            print("Response after adding note for delete:", 
+            print("Response after adding note for delete:",
                   response.data.decode('utf-8'))
             note = Nota.query.filter_by(contenido='Note to delete').first()
             if note:
-                rv = self.app.get(f'/delete/{note.id}', 
+                rv = self.app.get(f'/delete/{note.id}',
                                   follow_redirects=True)
                 response_text = rv.data.decode('utf-8')
                 print("Response after deleting note:", response_text)
                 assert 'Note to delete' not in response_text
             else:
                 self.fail("No se encontró la nota para eliminar")
+
 
 if __name__ == '__main__':
     unittest.main()
