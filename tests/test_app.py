@@ -79,5 +79,6 @@ class FlaskBlogTestCase(unittest.TestCase):
             else:
                 self.fail("No se encontró la nota para eliminar")
 
+
 if __name__ == '__main__':
     unittest.main()
