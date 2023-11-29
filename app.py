@@ -1,9 +1,12 @@
 from flask import Flask, request, render_template, redirect, url_for
+from flask import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import sessionmaker
+from prometheus_client import generate_latest, Counter, Gauge, Histogram 
+from prometheus_client import CONTENT_TYPE_LATEST
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notas.db'
@@ -14,6 +17,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Métricas de ejemplo
+REQUEST_COUNT = Counter('request_count', 'App Request Count')
+REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency')
+
+@app.route('/metrics')
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 class Usuario(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -83,21 +93,37 @@ def index():
 @app.route('/add', methods=['POST'])
 @login_required
 def add():
-    nueva = Nota(contenido=request.form['nota'],
-                 usuario_id=current_user.id)
-    db.session.add(nueva)
-    db.session.commit()
+    contenido_nota = request.form['nota'].strip()
+    if not contenido_nota:
+        return redirect(url_for('index'))
+    try:
+        nueva = Nota(contenido=contenido_nota, 
+                     usuario_id=current_user.id)
+        db.session.add(nueva)
+        db.session.commit()
+    except Exception as e:
+        # Manejar la excepción
+        return redirect(url_for('index'))
     return redirect(url_for('index'))
+
 
 
 @app.route('/edit/<int:nota_id>', methods=['GET', 'POST'])
 @login_required
 def edit(nota_id):
-    nota = Nota.query.filter_by(usuario_id=current_user.id, id=nota_id).first()
+    nota = Nota.query.filter_by(usuario_id=current_user.id, 
+                                id=nota_id).first()
     if nota:
         if request.method == 'POST':
-            nota.contenido = request.form['nota']
-            db.session.commit()
+            contenido_nota = request.form['nota'].strip()
+            if not contenido_nota:
+                return redirect(url_for('index'))
+            try:
+                nota.contenido = contenido_nota
+                db.session.commit()
+            except Exception as e:
+                # Manejar la excepción
+                return redirect(url_for('index'))
             return redirect(url_for('index'))
         return render_template('edit.html', nota=nota)
     return redirect(url_for('index'))
@@ -106,11 +132,17 @@ def edit(nota_id):
 @app.route('/delete/<int:nota_id>', methods=['GET'])
 @login_required
 def delete(nota_id):
-    nota = Nota.query.filter_by(usuario_id=current_user.id, id=nota_id).first()
+    nota = Nota.query.filter_by(usuario_id=current_user.id, 
+                                id=nota_id).first()
     if nota:
-        db.session.delete(nota)
-        db.session.commit()
+        try:
+            db.session.delete(nota)
+            db.session.commit()
+        except Exception as e:
+            # Manejar la excepción
+            pass  # O registrar la excepción
     return redirect(url_for('index'))
+
 
 
 @app.route('/logout')

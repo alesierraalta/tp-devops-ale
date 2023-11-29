@@ -1,12 +1,10 @@
 import unittest
 import sys
 import os
-# from flask_sqlalchemy import SQLAlchemy
-from app import app, db, Usuario, Nota
-
 # Add the app directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.pardir)))
+from app import app, db, Usuario, Nota
 
 
 class FlaskBlogTestCase(unittest.TestCase):
@@ -45,45 +43,41 @@ class FlaskBlogTestCase(unittest.TestCase):
     def test_login_logout(self):
         rv = self.login()
         response_text = rv.data.decode('utf-8')
-        # Add print for debugging
         print("Response after logging in:", response_text)
-        assert 'Welcome, testuser' in response_text \
-            or 'Logout' in response_text
+        assert 'Cerrar Sesión' in response_text
         rv = self.logout()
         response_text = rv.data.decode('utf-8')
-        # Add print for debugging
-        print("Response after logging out:", response_text)
-        assert 'Welcome, testuser' not in response_text \
-            and 'Logout' not in response_text
+        assert 'Cerrar Sesión' not in response_text
+
 
     def test_edit_note(self):
-        # Test to verify note editing
         with app.app_context():
             self.login()
-            self.app.post('/add', data={'note': 'Note to edit'},
-                          follow_redirects=True)
-            note = Nota.query.filter_by(content='Note to edit').first()
-            rv = self.app.post(f'/edit/{note.id}',
-                               data={'note': 'Edited note'},
-                               follow_redirects=True)
-            response_text = rv.data.decode('utf-8')
-            # Add print for debugging
-            print("Response after editing note:", response_text)
-            assert b'Edited note' in rv.data
+            response = self.app.post('/add', data={'nota': 'Note to edit'}, follow_redirects=True)
+            print("Response after adding note for edit:", response.data.decode('utf-8'))
+            note = Nota.query.filter_by(contenido='Note to edit').first()
+            if note:
+                rv = self.app.post(f'/edit/{note.id}', data={'nota': 'Edited note'}, follow_redirects=True)
+                response_text = rv.data.decode('utf-8')
+                print("Response after editing note:", response_text)
+                assert 'Edited note' in response_text
+            else:
+                self.fail("No se encontró la nota para editar")
 
     def test_delete_note(self):
-        # Test to verify note deletion
         with app.app_context():
             self.login()
-            self.app.post('/add', data={'note': 'Note to delete'},
-                          follow_redirects=True)
-            note = Nota.query.filter_by(content='Note to delete').first()
-            rv = self.app.get(f'/delete/{note.id}',
-                              follow_redirects=True)
-            response_text = rv.data.decode('utf-8')
-            # Add print for debugging
-            print("Response after deleting note:", response_text)
-            assert b'Note to delete' not in rv.data
+            response = self.app.post('/add', data={'nota': 'Note to delete'}, follow_redirects=True)
+            print("Response after adding note for delete:", response.data.decode('utf-8'))
+            note = Nota.query.filter_by(contenido='Note to delete').first()
+            if note:
+                rv = self.app.get(f'/delete/{note.id}', follow_redirects=True)
+                response_text = rv.data.decode('utf-8')
+                print("Response after deleting note:", response_text)
+                assert 'Note to delete' not in response_text
+            else:
+                self.fail("No se encontró la nota para eliminar")
+
 
 
 if __name__ == '__main__':
