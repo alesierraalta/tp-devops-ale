@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import sessionmaker
-from prometheus_client import generate_latest, Counter, Histogram, Gauge
+from prometheus_client import generate_latest, Counter, Histogram
 from prometheus_client import CONTENT_TYPE_LATEST
 
 app = Flask(__name__)
@@ -22,7 +22,7 @@ REQUEST_COUNT = Counter('request_count', 'App Request Count')
 REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency')
 REGISTERED_USERS = Counter('registered_users', 'Total Registered Users')
 CREATED_NOTES = Counter('created_notes', 'Total Created Notes')
-AVERAGE_RESPONSE_TIME = Histogram('average_response_time_seconds', 
+AVERAGE_RESPONSE_TIME = Histogram('average_response_time_seconds',
                                   'Average Response Time per Request')
 
 
@@ -118,6 +118,7 @@ def add():
         # Manejar la excepción
         return redirect(url_for('index'))
     return redirect(url_for('index'))
+
 
 @app.route('/edit/<int:nota_id>', methods=['GET', 'POST'])
 @login_required
