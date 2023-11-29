@@ -1,9 +1,12 @@
 import unittest
 import sys
 import os
+
+# Ajustar las importaciones al inicio del archivo
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.pardir)))
 from app import app, db, Usuario, Nota
+
 
 class FlaskBlogTestCase(unittest.TestCase):
 
@@ -45,8 +48,7 @@ class FlaskBlogTestCase(unittest.TestCase):
     def test_edit_note(self):
         with app.app_context():
             self.login()
-            response = self.app.post('/add', 
-                                     data={'nota': 'Note to edit'}, 
+            response = self.app.post('/add', data={'nota': 'Note to edit'}, 
                                      follow_redirects=True)
             print("Response after adding note for edit:", 
                   response.data.decode('utf-8'))
@@ -64,8 +66,7 @@ class FlaskBlogTestCase(unittest.TestCase):
     def test_delete_note(self):
         with app.app_context():
             self.login()
-            response = self.app.post('/add', 
-                                     data={'nota': 'Note to delete'}, 
+            response = self.app.post('/add', data={'nota': 'Note to delete'}, 
                                      follow_redirects=True)
             print("Response after adding note for delete:", 
                   response.data.decode('utf-8'))

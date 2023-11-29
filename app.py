@@ -21,9 +21,11 @@ login_manager.login_view = 'login'
 REQUEST_COUNT = Counter('request_count', 'App Request Count')
 REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency')
 
+
 @app.route('/metrics')
 def metrics():
     return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
 
 class Usuario(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,20 +38,24 @@ class Usuario(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+
 class Nota(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contenido = db.Column(db.String(1000))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
+
 # Create the database
 with app.app_context():
     db.create_all()
+
 
 @login_manager.user_loader
 def load_user(user_id):
     Session = sessionmaker(bind=db.engine)
     session = Session()
     return session.get(Usuario, int(user_id))
+
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -66,6 +72,7 @@ def registro():
         return redirect(url_for('login'))
     return render_template('registro.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -77,11 +84,13 @@ def login():
             return redirect(url_for('index'))
     return render_template('login.html')
 
+
 @app.route('/')
 @login_required
 def index():
     notas = Nota.query.filter_by(usuario_id=current_user.id).all()
     return render_template('index.html', notas=notas)
+
 
 @app.route('/add', methods=['POST'])
 @login_required
@@ -97,6 +106,7 @@ def add():
         # Manejar la excepción
         return redirect(url_for('index'))
     return redirect(url_for('index'))
+
 
 @app.route('/edit/<int:nota_id>', methods=['GET', 'POST'])
 @login_required
@@ -117,6 +127,7 @@ def edit(nota_id):
         return render_template('edit.html', nota=nota)
     return redirect(url_for('index'))
 
+
 @app.route('/delete/<int:nota_id>', methods=['GET'])
 @login_required
 def delete(nota_id):
@@ -130,11 +141,13 @@ def delete(nota_id):
             pass  # O registrar la excepción
     return redirect(url_for('index'))
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     with app.app_context():
