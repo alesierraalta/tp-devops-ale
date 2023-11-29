@@ -6,6 +6,7 @@ from app import app, db, Usuario, Nota
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.pardir)))
 
+
 class FlaskBlogTestCase(unittest.TestCase):
 
     def setUp(self):
