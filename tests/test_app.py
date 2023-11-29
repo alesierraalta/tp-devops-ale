@@ -1,13 +1,10 @@
 import unittest
 import sys
 import os
-
+from app import app, db, Usuario, Nota
 # Ajustar las importaciones al inicio del archivo
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.pardir)))
-
-from app import app, db, Usuario, Nota
-
 
 
 class FlaskBlogTestCase(unittest.TestCase):
@@ -81,7 +78,6 @@ class FlaskBlogTestCase(unittest.TestCase):
                 assert 'Note to delete' not in response_text
             else:
                 self.fail("No se encontró la nota para eliminar")
-
 
 if __name__ == '__main__':
     unittest.main()
