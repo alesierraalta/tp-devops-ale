@@ -2,6 +2,8 @@
 
 TP DevOps
 
+Aplicacion de Gestor de notas sencilla con Gestor de sesion de usuarios basico, Base de datos SQLite, aplicacion hecha en Flask
+
 ## Instrucciones 
 
 Clonar el proyecto:
